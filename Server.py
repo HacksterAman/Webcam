@@ -1,31 +1,24 @@
 import cv2
-import socket
-import struct
-import pickle
+from flask import Flask, Response
 
-server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_socket.bind(('192.168.1.109', 12345))
-server_socket.listen(5)
-
-fps=15
+app = Flask(__name__)
 
 cap = cv2.VideoCapture(0)
-cap.set(5, fps) 
 
-while True:
-    client_socket, addr = server_socket.accept()
-    print(f"Connection from {addr}")
+def generate_frames():
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            break
+        else:
+            _, buffer = cv2.imencode('.jpg', frame)
+            frame = buffer.tobytes()
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
-    if client_socket:
-        while True:
-            ret, frame = cap.read()
+@app.route('/video_feed')
+def video_feed():
+    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
-            frame = cv2.resize(frame, (320, 240))
-            _, encoded_frame = cv2.imencode('.jpg', frame)
-            data = pickle.dumps(encoded_frame)
-
-            message_size = struct.pack("L", len(data))
-            client_socket.sendall(message_size + data)
-
-cap.release()
-server_socket.close()
+if __name__ == '__main__':
+    app.run(host='192.168.1.109', port=5000)
