@@ -18,12 +18,12 @@ while True:
         while True:
             ret, frame = cap.read()
 
-            frame = cv2.resize(frame, (640, 480))
+            frame = cv2.resize(frame, (320, 240))
+            _, encoded_frame = cv2.imencode('.jpg', frame)
+            data = pickle.dumps(encoded_frame)
 
-            compressed_frame = zlib.compress(pickle.dumps(frame), level=zlib.Z_BEST_SPEED)
-
-            message_size = struct.pack("L", len(compressed_frame))
-            client_socket.sendall(message_size + compressed_frame)
+            message_size = struct.pack("L", len(data))
+            client_socket.sendall(message_size + data)
 
 cap.release()
 server_socket.close()

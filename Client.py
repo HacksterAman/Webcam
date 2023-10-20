@@ -14,6 +14,7 @@ while True:
     while len(data) < payload_size:
         data += client_socket.recv(4096)
 
+    
     packed_msg_size = data[:payload_size]
     data = data[payload_size:]
     msg_size = struct.unpack("L", packed_msg_size)[0]
@@ -24,7 +25,8 @@ while True:
     frame_data = data[:msg_size]
     data = data[msg_size:]
 
-    frame = pickle.loads(zlib.decompress(frame_data))
+    encoded_frame = pickle.loads(frame_data)
+    frame = cv2.imdecode(encoded_frame, 1)
     cv2.imshow('Video', frame)
 
     if cv2.waitKey(1) == 13:
