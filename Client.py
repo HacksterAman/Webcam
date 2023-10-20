@@ -1,7 +1,6 @@
 import cv2
 import socket
 import struct
-import zlib
 import pickle
 
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

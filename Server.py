@@ -1,7 +1,6 @@
 import cv2
 import socket
 import struct
-import zlib
 import pickle
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -9,6 +8,7 @@ server_socket.bind(('192.168.1.109', 12345))
 server_socket.listen(5)
 
 cap = cv2.VideoCapture(0)
+cap.set(5, 15) 
 
 while True:
     client_socket, addr = server_socket.accept()
